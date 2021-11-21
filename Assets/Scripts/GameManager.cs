@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -5,32 +6,49 @@ public class GameManager : MonoBehaviour
     //GameObject[,] walls = new GameObject[17, 15];// ‘½•ª•s—v
     const int WIDTH = 15;
     const int HEIGHT = 17;
-    byte[,] map = new byte[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
+    int[,] map = new int[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
 
     int[] UP    = { -1, 0 };
     int[] DOWN  = {  1, 0 };
     int[] LEFT  = {  0, -1};
     int[] RIGHT = {  0, 1 };
 
-    GameObject pref;
+    GameObject wall;
+
+    PlayerController[] players = new PlayerController[2];
+    int playerNum = 0;
 
     private void Start()
     {
         mapInit();
-        pref = (GameObject)Resources.Load("Wall");
+        wall = (GameObject)Resources.Load("Wall");
+        GameObject player = (GameObject)Resources.Load("Player_1");
+
         for (int i = 0; i < HEIGHT; i++)
         {
             for (int j = 0; j < WIDTH; j++)
             {
-                 
-                if (map[i, j] == 2)
+                switch (map[i, j])
                 {
-                    //walls[i, j] =
-                    Instantiate(
-                        pref,
-                        new Vector3(j, 0, HEIGHT - 1 - i),
-                        Quaternion.identity
-                        );
+                    case 1:
+                        GameObject temp =  Instantiate(
+                            player,
+                            new Vector3(j, 0, HEIGHT - 1 - i),
+                            Quaternion.identity
+                            );
+                        temp.name = "Player_" + playerNum;
+                        players[playerNum] = temp.GetComponent<PlayerController>();
+                        players[playerNum++].Init(j, i);
+                        break;
+
+                    case 2:
+                        //walls[i, j] =
+                        Instantiate(
+                            wall,
+                            new Vector3(j, 0, HEIGHT - 1 - i),
+                            Quaternion.identity
+                            );
+                        break;
                 }
             }
         }
@@ -51,6 +69,10 @@ public class GameManager : MonoBehaviour
                     map[i, j] = 0;
                 }
 
+                if (i == 8 && (j == 2 || j ==12))
+                {
+                    map[i, j] = 1;
+                }
             }
         }
     }
@@ -105,7 +127,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("YOU WIN!!");
             }
             map[y + dir[0], x + dir[1]] = 2;
-            Instantiate(pref, new Vector3(x + dir[1], 0, HEIGHT - 1 - (y + dir[0])), Quaternion.identity);
+            Instantiate(wall, new Vector3(x + dir[1], 0, HEIGHT - 1 - (y + dir[0])), Quaternion.identity);
         }
     }
 
@@ -156,22 +178,27 @@ public class GameManager : MonoBehaviour
         return x < 0 || x > WIDTH - 1 || y < 0 || y > HEIGHT - 1;
     }
 
-
+    bool flag = true;
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (flag)
         {
-
-            foreach (int k in GetReady(14, 16))
-            {
-                Debug.Log(k);
-            }
+            StartCoroutine("Game");
+            flag = false;
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.P))
+    IEnumerator Game()
+    {
+        for(int i = 0; i < 2; i++)
         {
+            players[i].Action1();
+            //yield return null;
+            yield return new WaitForSeconds(1);
 
-            Put(1, 1, RIGHT);
+            players[i].Action2();
+            //yield return null;
+            yield return new WaitForSeconds(1);
         }
     }
 }
