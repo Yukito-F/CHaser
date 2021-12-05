@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,15 +9,11 @@ public class GameManager : MonoBehaviour
     const int HEIGHT = 17;
     int[,] map = new int[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
 
-    int[] UP    = { -1, 0 };
-    int[] DOWN  = {  1, 0 };
-    int[] LEFT  = {  0, -1};
-    int[] RIGHT = {  0, 1 };
-
     GameObject wall;
 
     PlayerController[] players = new PlayerController[2];
     int playerNum = 0;
+    string playerName;
 
     private void Start()
     {
@@ -31,7 +28,7 @@ public class GameManager : MonoBehaviour
                 switch (map[i, j])
                 {
                     case 1:
-                        GameObject temp =  Instantiate(
+                        GameObject temp = Instantiate(
                             player,
                             new Vector3(j, 0, HEIGHT - 1 - i),
                             Quaternion.identity
@@ -56,32 +53,57 @@ public class GameManager : MonoBehaviour
 
     void mapInit()
     {
-        for (int i = 0; i < HEIGHT; i++)
-        {
-            for (int j = 0; j < WIDTH; j++)
-            {
-                if (i == 0 || i == HEIGHT-1 || j == 0 || j == WIDTH-1)
-                {
-                    map[i, j] = 2;
-                }
-                else
-                {
-                    map[i, j] = 0;
-                }
+        //for (int i = 0; i < HEIGHT; i++)
+        //{
+        //    for (int j = 0; j < WIDTH; j++)
+        //    {
+        //        if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1)
+        //        {
+        //            map[i, j] = 2;
+        //        }
+        //        else
+        //        {
+        //            map[i, j] = 0;
+        //        }
 
-                if (i == 8 && (j == 2 || j ==12))
-                {
-                    map[i, j] = 1;
-                }
-            }
-        }
+        //        if (i == 8 && (j == 0 || j == 14))
+        //        {
+        //            map[i, j] = 1;
+        //        }
+        //    }
+        //}
+
+        map = new int[,]{
+            { 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2},
+            { 0, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        };
     }
 
     public int[] GetReady(int x, int y)
     {
+        if (Judge(x, y))
+        {
+            Debug.Log(playerName + "is lose...");
+        }
+
         int[] result = new int[9];
 
-        for(int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
@@ -89,10 +111,10 @@ public class GameManager : MonoBehaviour
                 {
                     result[j + 3 * i] = 2;
                 }
-                else if (i == 1 && j == 1)
-                {
-                    result[j + 3 * i] = 0;
-                }
+                //else if (i == 1 && j == 1)
+                //{
+                //    result[j + 3 * i] = 0;
+                //}
                 else
                 {
                     result[j + 3 * i] = map[y - 1 + i, x - 1 + j];
@@ -106,13 +128,23 @@ public class GameManager : MonoBehaviour
     public void Walk(int x, int y, int[] dir) //dir = up: , left: , right: , down;
     {
         map[y, x] = 0;
-        if(CheckArea(x + dir[1], y + dir[0]))
+        
+        if (CheckArea(x + dir[1], y + dir[0]) || map[y + dir[0], x + dir[1]] == 2)
         {
             // •‰‚¯
-            Debug.Log("??????????????????????");
+            Debug.Log(playerName + "is lose...");
         }
         else
         {
+            if (map[y + dir[0], x + dir[1]] == 3)
+            {
+                map[y, x] = 2;
+                Instantiate(wall, new Vector3(x, 0, HEIGHT - 1 - y), Quaternion.identity);
+                if( Judge(x + dir[1], y + dir[0]) )
+                {
+                    Debug.Log(playerName + "is lose...");
+                }
+            }
             map[y + dir[0], x + dir[1]] = 1;
         }
     }
@@ -124,10 +156,16 @@ public class GameManager : MonoBehaviour
             if (map[y + dir[0], x + dir[1]] == 1)
             {
                 //Ÿ‚¿
-                Debug.Log("YOU WIN!!");
+                Debug.Log(playerName + "is win!!!");
             }
+
             map[y + dir[0], x + dir[1]] = 2;
             Instantiate(wall, new Vector3(x + dir[1], 0, HEIGHT - 1 - (y + dir[0])), Quaternion.identity);
+            // Ž©–Å”»’è
+            if (Judge(x, y))
+            {
+                Debug.Log(playerName + "is lose...");
+            }
         }
     }
 
@@ -178,6 +216,20 @@ public class GameManager : MonoBehaviour
         return x < 0 || x > WIDTH - 1 || y < 0 || y > HEIGHT - 1;
     }
 
+    private bool Judge(int x, int y)
+    {
+        bool result = true;
+
+        for (int i = 0; i < 4; i++)
+        {
+            result = result
+                && CheckArea(x + (int)Mathf.Cos(Mathf.PI / 4 * i), y + (int)Mathf.Sin(Mathf.PI / 4 * i))
+                || map[y + (int)Mathf.Sin(Mathf.PI / 4 * i), x + (int)Mathf.Cos(Mathf.PI / 4 * i)] == 2;
+        }
+
+        return result;
+    }
+
     bool flag = true;
     private void Update()
     {
@@ -190,15 +242,20 @@ public class GameManager : MonoBehaviour
 
     IEnumerator Game()
     {
-        for(int i = 0; i < 2; i++)
+        for (int j = 0; j < 5; j++)
         {
-            players[i].Action1();
-            //yield return null;
-            yield return new WaitForSeconds(1);
+            for (int i = 0; i < 2; i++)
+            {
+                playerName = players[i].name;
 
-            players[i].Action2();
-            //yield return null;
-            yield return new WaitForSeconds(1);
+                players[i].Action1();
+                //yield return null;
+                yield return new WaitForSeconds(1);
+
+                players[i].Action2();
+                //yield return null;
+                yield return new WaitForSeconds(1);
+            }
         }
     }
 }
