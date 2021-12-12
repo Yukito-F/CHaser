@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     int[,] map = new int[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
 
     GameObject wall;
+    GameObject Item;
 
     PlayerController[] players = new PlayerController[2];
     int playerNum = 0;
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
         mapInit();
         wall = (GameObject)Resources.Load("Wall");
         GameObject player = (GameObject)Resources.Load("Player_1");
+        GameObject item = (GameObject)Resources.Load("Item");
 
         for (int i = 0; i < HEIGHT; i++)
         {
@@ -42,6 +44,13 @@ public class GameManager : MonoBehaviour
                         //walls[i, j] =
                         Instantiate(
                             wall,
+                            new Vector3(j, 0, HEIGHT - 1 - i),
+                            Quaternion.identity
+                            );
+                        break;
+                    case 3:
+                        Instantiate(
+                            item,
                             new Vector3(j, 0, HEIGHT - 1 - i),
                             Quaternion.identity
                             );
@@ -111,10 +120,10 @@ public class GameManager : MonoBehaviour
                 {
                     result[j + 3 * i] = 2;
                 }
-                //else if (i == 1 && j == 1)
-                //{
-                //    result[j + 3 * i] = 0;
-                //}
+                else if (i == 1 && j == 1)
+                {
+                    result[j + 3 * i] = 0;
+                }
                 else
                 {
                     result[j + 3 * i] = map[y - 1 + i, x - 1 + j];
@@ -129,23 +138,23 @@ public class GameManager : MonoBehaviour
     {
         map[y, x] = 0;
         
-        if (CheckArea(x + dir[1], y + dir[0]) || map[y + dir[0], x + dir[1]] == 2)
+        if (CheckArea(x + dir[0], y + dir[1]) || map[y + dir[1], x + dir[0]] == 2)
         {
             // •‰‚¯
             Debug.Log(playerName + "is lose...");
         }
         else
         {
-            if (map[y + dir[0], x + dir[1]] == 3)
+            if (map[y + dir[1], x + dir[0]] == 3)
             {
                 map[y, x] = 2;
                 Instantiate(wall, new Vector3(x, 0, HEIGHT - 1 - y), Quaternion.identity);
-                if( Judge(x + dir[1], y + dir[0]) )
+                if( Judge(x + dir[0], y + dir[1]) )
                 {
                     Debug.Log(playerName + "is lose...");
                 }
             }
-            map[y + dir[0], x + dir[1]] = 1;
+            map[y + dir[1], x + dir[0]] = 1;
         }
     }
 
@@ -216,7 +225,7 @@ public class GameManager : MonoBehaviour
         return x < 0 || x > WIDTH - 1 || y < 0 || y > HEIGHT - 1;
     }
 
-    private bool Judge(int x, int y)
+    private bool Judge(int x, int y) // 4•û‚Ì•Ç”»’è
     {
         bool result = true;
 
@@ -249,12 +258,13 @@ public class GameManager : MonoBehaviour
                 playerName = players[i].name;
 
                 players[i].Action1();
-                //yield return null;
                 yield return new WaitForSeconds(1);
 
                 players[i].Action2();
-                //yield return null;
                 yield return new WaitForSeconds(1);
+
+                //players[i].Action1();
+                //yield return new WaitForSeconds(1);
             }
         }
     }
