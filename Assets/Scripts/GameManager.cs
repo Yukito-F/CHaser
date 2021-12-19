@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     int[,] map = new int[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
 
     GameObject wall;
-    GameObject Item;
 
     PlayerController[] players = new PlayerController[2];
     int playerNum = 0;
@@ -83,23 +82,23 @@ public class GameManager : MonoBehaviour
         //}
 
         map = new int[,]{
-            { 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2},
-            { 0, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,3,0,3,0,3,0,3,0,3,0,3,0,3,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,3,0,0,3,0,0,0,0,3,3,3,0,3,0},
+            {0,2,0,3,3,3,0,2,0,0,3,0,0,2,0},
+            {0,3,0,0,0,0,0,3,0,0,0,0,0,3,0},
+            {0,0,0,3,0,0,3,3,0,2,0,0,0,0,0},
+            {0,3,0,3,0,0,0,0,0,3,3,0,0,3,0},
+            {0,0,1,0,0,3,0,3,0,3,0,0,1,0,0},
+            {0,3,0,0,3,3,0,0,0,0,0,3,0,3,0},
+            {0,0,0,0,0,2,0,3,3,0,0,3,0,0,0},
+            {0,3,0,0,0,0,0,3,0,0,0,0,0,3,0},
+            {0,2,0,0,3,0,0,2,0,3,3,3,0,2,0},
+            {0,3,0,3,3,3,0,0,0,0,3,0,0,3,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,3,0,3,0,3,0,3,0,3,0,3,0,3,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
         };
     }
 
@@ -107,7 +106,7 @@ public class GameManager : MonoBehaviour
     {
         if (Judge(x, y))
         {
-            Debug.Log(playerName + "is lose...");
+            FinishGame(playerName + "is lose...");
         }
 
         int[] result = new int[9];
@@ -141,7 +140,7 @@ public class GameManager : MonoBehaviour
         if (CheckArea(x + dir[0], y + dir[1]) || map[y + dir[1], x + dir[0]] == 2)
         {
             // 負け
-            Debug.Log(playerName + "is lose...");
+            FinishGame(playerName + "is lose...");
         }
         else
         {
@@ -151,7 +150,7 @@ public class GameManager : MonoBehaviour
                 Instantiate(wall, new Vector3(x, 0, HEIGHT - 1 - y), Quaternion.identity);
                 if( Judge(x + dir[0], y + dir[1]) )
                 {
-                    Debug.Log(playerName + "is lose...");
+                    FinishGame(playerName + "is lose...");
                 }
             }
             map[y + dir[1], x + dir[0]] = 1;
@@ -165,7 +164,7 @@ public class GameManager : MonoBehaviour
             if (map[y + dir[0], x + dir[1]] == 1)
             {
                 //勝ち
-                Debug.Log(playerName + "is win!!!");
+                FinishGame(playerName + "is win!!!");
             }
 
             map[y + dir[0], x + dir[1]] = 2;
@@ -173,7 +172,7 @@ public class GameManager : MonoBehaviour
             // 自滅判定
             if (Judge(x, y))
             {
-                Debug.Log(playerName + "is lose...");
+                FinishGame(playerName + "is lose...");
             }
         }
     }
@@ -227,16 +226,53 @@ public class GameManager : MonoBehaviour
 
     private bool Judge(int x, int y) // 4方の壁判定
     {
-        bool result = true;
+        // ans 1
 
-        for (int i = 0; i < 4; i++)
-        {
-            result = result
-                && CheckArea(x + (int)Mathf.Cos(Mathf.PI / 4 * i), y + (int)Mathf.Sin(Mathf.PI / 4 * i))
-                || map[y + (int)Mathf.Sin(Mathf.PI / 4 * i), x + (int)Mathf.Cos(Mathf.PI / 4 * i)] == 2;
-        }
+        //bool result = true;
+        //for (int i = 0; i < 4; i++)
+        //{
+        //    result = result
+        //        && CheckArea(x + (int)Mathf.Cos(Mathf.PI / 4 * i), y + (int)Mathf.Sin(Mathf.PI / 4 * i))
+        //        || map[y + (int)Mathf.Sin(Mathf.PI / 4 * i), x + (int)Mathf.Cos(Mathf.PI / 4 * i)] == 2;
+        //}
+        //return result;
+
+        // ans 2
+
+        //bool result = (CheckArea(x + 0, y + 1) || map[y + 1, x + 0] == 2)
+        //    && (CheckArea(x - 1, y + 0) || map[y + 0, x - 1] == 2)
+        //    && (CheckArea(x + 1, y + 0) || map[y + 0, x + 1] == 2)
+        //    && (CheckArea(x + 0, y - 1) || map[y - 1, x + 0] == 2);
+
+        // ans 3
+
+        bool result = true;
+        result = result && (CheckArea(x + 1, y + 0) || map[y + 0, x + 1] == 2);
+        result = result && (CheckArea(x - 1, y + 0) || map[y + 0, x - 1] == 2);
+        result = result && (CheckArea(x + 0, y + 1) || map[y + 1, x + 0] == 2);
+        result = result && (CheckArea(x + 0, y - 1) || map[y - 1, x + 0] == 2);
 
         return result;
+    }
+
+    void FinishGame(string message)
+    {
+        Debug.Log(message);
+        SceneManager.sceneLoaded += GameSceneLoaded;
+
+        // シーン切り替え
+        SceneManager.LoadScene("Result");
+    }
+    private void GameSceneLoaded(Scene next, LoadSceneMode mode)
+    {
+        // シーン切り替え後のスクリプトを取得
+        //var gameManager = GameObject.Find("").GetComponent<>();
+
+        // データを渡す処理
+        //gameManager.setMap(map);
+
+        // イベントから削除
+        SceneManager.sceneLoaded -= GameSceneLoaded;
     }
 
     bool flag = true;

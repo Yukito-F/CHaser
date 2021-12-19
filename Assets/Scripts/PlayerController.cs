@@ -28,20 +28,6 @@ public class PlayerController : MonoBehaviour
         //WriteLog(gm.GetReady(posX, posY));
     }
 
-    public void Action1()
-    {
-        around = gm.GetReady(posX, posY);
-        WriteLog(around, "GetReady");
-    }
-
-    public void Action2()
-    {
-        // ‰Â•Ï
-        //Put(x, y, RIGHT);
-        WriteLog(new int[] { posX, posY }, "Pos");
-        Walk(posX, posY, RIGHT);
-    }
-
     private void Walk(int x, int y, int[] dir) //dir = up: , left: , right: , down;
     {
         WriteLog(dir, "Walk");
@@ -84,5 +70,19 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Destroy(other.gameObject);
+    }
+
+    public void Action1()
+    {
+        around = gm.GetReady(posX, posY);
+        WriteLog(around, "GetReady");
+    }
+
+    public void Action2()
+    {
+        // ‰Â•Ï
+        //Put(x, y, RIGHT);
+        WriteLog(new int[] { posX, posY }, "Pos");
+        Walk(posX, posY, RIGHT);
     }
 }
