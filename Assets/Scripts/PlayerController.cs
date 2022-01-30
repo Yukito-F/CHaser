@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    int posX, posY;
+    public int posX, posY;
 
-    GameManager gm;
+    public GameManager gm;
 
     int[] UP    = {  0, -1 };
     int[] DOWN  = {  0,  1 };
     int[] LEFT  = { -1,  0 };
     int[] RIGHT = {  1,  0 };
 
-    int[] around;
+    public int[] around;
 
     public void Init(int setX, int setY)
     {
@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
         //WriteLog(gm.GetReady(posX, posY));
     }
 
-    private void Walk(int x, int y, int[] dir) //dir = up: , left: , right: , down;
+    public void Walk(int x, int y, int[] dir) //dir = up: , left: , right: , down;
     {
         WriteLog(dir, "Walk");
         gm.Walk(x, y, dir);
@@ -37,13 +37,13 @@ public class PlayerController : MonoBehaviour
         posY += dir[1];
     }
 
-    private void Put(int x, int y, int[] dir)
+    public void Put(int x, int y, int[] dir)
     {
         WriteLog(dir, "Put");
         gm.Put(x, y, dir);
     }
 
-    private int[] Look(int x, int y, int[] dir)
+    public int[] Look(int x, int y, int[] dir)
     {
         WriteLog(dir, "Look");
         return gm.Look(x, y, dir);
@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
         return gm.Search(x, y, dir);
     }
 
-    void WriteLog(int[] array, string com)
+    public void WriteLog(int[] array, string com)
     {
         string text = name + ": " + com + ": [ ";
         foreach (int i in array)
@@ -72,17 +72,20 @@ public class PlayerController : MonoBehaviour
         Destroy(other.gameObject);
     }
 
-    public void Action1()
+    public int[] SetDir(int dir)
     {
-        around = gm.GetReady(posX, posY);
-        WriteLog(around, "GetReady");
-    }
-
-    public void Action2()
-    {
-        // ‰Â•Ï
-        //Put(x, y, RIGHT);
-        WriteLog(new int[] { posX, posY }, "Pos");
-        Walk(posX, posY, RIGHT);
+        switch (dir)
+        {
+            case 0:
+                return UP;
+            case 1:
+                return LEFT;
+            case 2:
+                return RIGHT;
+            case 3:
+                return DOWN;
+            default:
+                return null;
+        }
     }
 }

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6008362049543426589}
   - component: {fileID: 8914543612132027223}
   - component: {fileID: 5373753189746626499}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: default
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90,10 +90,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6562247417267512133}
-  - component: {fileID: 269085833564603772}
+  - component: {fileID: 2309815800952854129}
   - component: {fileID: -6251577332841938448}
   - component: {fileID: 1738557368612726099}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Player_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &269085833564603772
+--- !u!114 &2309815800952854129
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,9 +124,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5789968778259610111}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d996f69378ef27841a4f59f964b43dee, type: 3}
+  m_Script: {fileID: 11500000, guid: f40417682af1e5c4d8f17d18f48b1b29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  posX: 0
+  posY: 0
+  gm: {fileID: 0}
+  around: 
 --- !u!65 &-6251577332841938448
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -152,7 +156,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0

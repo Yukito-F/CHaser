@@ -4,22 +4,23 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    //GameObject[,] walls = new GameObject[17, 15];// ‘½•ª•s—v
+    //GameObject[,] walls = new GameObject[17, 15];// ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½v
     const int WIDTH = 15;
     const int HEIGHT = 17;
     int[,] map = new int[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
 
     GameObject wall;
 
-    PlayerController[] players = new PlayerController[2];
-    int playerNum = 0;
+    P1 player1;
+    P2 player2;
+
+    int playerNum = 1;
     string playerName;
 
     private void Start()
     {
         mapInit();
         wall = (GameObject)Resources.Load("Wall");
-        GameObject player = (GameObject)Resources.Load("Player_1");
         GameObject item = (GameObject)Resources.Load("Item");
 
         for (int i = 0; i < HEIGHT; i++)
@@ -29,14 +30,25 @@ public class GameManager : MonoBehaviour
                 switch (map[i, j])
                 {
                     case 1:
+                        Debug.Log(playerNum);
                         GameObject temp = Instantiate(
-                            player,
+                            (GameObject)Resources.Load("Player_" + playerNum),
                             new Vector3(j, 0, HEIGHT - 1 - i),
                             Quaternion.identity
                             );
                         temp.name = "Player_" + playerNum;
-                        players[playerNum] = temp.GetComponent<PlayerController>();
-                        players[playerNum++].Init(j, i);
+
+                        if (playerNum == 1){
+                            
+                            player1 = temp.GetComponent<P1>();
+                            player1.Init(j, i);
+
+                            playerNum++;
+                        }
+                        else{
+                            player2 = temp.GetComponent<P2>();
+                            player2.Init(j, i);
+                        }
                         break;
 
                     case 2:
@@ -134,12 +146,10 @@ public class GameManager : MonoBehaviour
     }
 
     public void Walk(int x, int y, int[] dir) //dir = up: , left: , right: , down;
-    {
-        map[y, x] = 0;
-        
+    {       
         if (CheckArea(x + dir[0], y + dir[1]) || map[y + dir[1], x + dir[0]] == 2)
         {
-            // •‰‚¯
+            // ï¿½ï¿½ï¿½ï¿½
             FinishGame(playerName + "is lose...");
         }
         else
@@ -148,10 +158,14 @@ public class GameManager : MonoBehaviour
             {
                 map[y, x] = 2;
                 Instantiate(wall, new Vector3(x, 0, HEIGHT - 1 - y), Quaternion.identity);
-                if( Judge(x + dir[0], y + dir[1]) )
+                if (Judge(x + dir[0], y + dir[1]))
                 {
                     FinishGame(playerName + "is lose...");
                 }
+            }
+            else
+            {
+                map[y, x] = 0;
             }
             map[y + dir[1], x + dir[0]] = 1;
         }
@@ -163,13 +177,13 @@ public class GameManager : MonoBehaviour
         {
             if (map[y + dir[0], x + dir[1]] == 1)
             {
-                //Ÿ‚¿
+                //ï¿½ï¿½ï¿½ï¿½
                 FinishGame(playerName + "is win!!!");
             }
 
             map[y + dir[0], x + dir[1]] = 2;
             Instantiate(wall, new Vector3(x + dir[1], 0, HEIGHT - 1 - (y + dir[0])), Quaternion.identity);
-            // ©–Å”»’è
+            // ï¿½ï¿½ï¿½Å”ï¿½ï¿½ï¿½
             if (Judge(x, y))
             {
                 FinishGame(playerName + "is lose...");
@@ -219,12 +233,12 @@ public class GameManager : MonoBehaviour
         return result;
     }
 
-    private bool CheckArea(int x, int y) // êŠO”»’è
+    private bool CheckArea(int x, int y) // ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
     {
         return x < 0 || x > WIDTH - 1 || y < 0 || y > HEIGHT - 1;
     }
 
-    private bool Judge(int x, int y) // 4•û‚Ì•Ç”»’è
+    private bool Judge(int x, int y) // 4ï¿½ï¿½ï¿½Ì•Ç”ï¿½ï¿½ï¿½
     {
         // ans 1
 
@@ -260,18 +274,18 @@ public class GameManager : MonoBehaviour
         Debug.Log(message);
         SceneManager.sceneLoaded += GameSceneLoaded;
 
-        // ƒV[ƒ“Ø‚è‘Ö‚¦
+        // ï¿½Vï¿½[ï¿½ï¿½ï¿½Ø‚ï¿½Ö‚ï¿½
         SceneManager.LoadScene("Result");
     }
     private void GameSceneLoaded(Scene next, LoadSceneMode mode)
     {
-        // ƒV[ƒ“Ø‚è‘Ö‚¦Œã‚ÌƒXƒNƒŠƒvƒg‚ğæ“¾
+        // ï¿½Vï¿½[ï¿½ï¿½ï¿½Ø‚ï¿½Ö‚ï¿½ï¿½ï¿½ÌƒXï¿½Nï¿½ï¿½ï¿½vï¿½gï¿½ï¿½ï¿½æ“¾
         //var gameManager = GameObject.Find("").GetComponent<>();
 
-        // ƒf[ƒ^‚ğ“n‚·ˆ—
+        // ï¿½fï¿½[ï¿½^ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         //gameManager.setMap(map);
 
-        // ƒCƒxƒ“ƒg‚©‚çíœ
+        // ï¿½Cï¿½xï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½íœ
         SceneManager.sceneLoaded -= GameSceneLoaded;
     }
 
@@ -287,21 +301,30 @@ public class GameManager : MonoBehaviour
 
     IEnumerator Game()
     {
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < 100; j++)
         {
-            for (int i = 0; i < 2; i++)
-            {
-                playerName = players[i].name;
+            playerName = player1.name;
 
-                players[i].Action1();
-                yield return new WaitForSeconds(1);
+            player1.Action1();
+            yield return new WaitForSeconds(0.1f);
 
-                players[i].Action2();
-                yield return new WaitForSeconds(1);
+            player1.Action2();
+            yield return new WaitForSeconds(0.1f);
 
-                //players[i].Action1();
-                //yield return new WaitForSeconds(1);
-            }
+            //players[i].Action1();
+            //yield return new WaitForSeconds(1);
+
+            playerName = player2.name;
+
+            player2.Action1();
+            yield return new WaitForSeconds(0.1f);
+
+            player2.Action2();
+            yield return new WaitForSeconds(0.1f);
+
+            //players[i].Action1();
+            //yield return new WaitForSeconds(1);
+
         }
     }
 }
