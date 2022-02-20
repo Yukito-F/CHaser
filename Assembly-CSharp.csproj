@@ -55,8 +55,13 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\P2.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\Counter.cs" />
     <Compile Include="Assets\Scripts\P1.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\ItemController.cs" />
+    <Compile Include="Assets\Scripts\ScriptRen.cs" />
+    <Compile Include="Assets\Scripts\ScriptShun.cs" />
+    <Compile Include="Assets\Scripts\ScriptTsukada.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\SkySeries Freebie\Hdri setup.txt" />

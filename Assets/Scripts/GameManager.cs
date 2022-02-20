@@ -4,12 +4,12 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    //GameObject[,] walls = new GameObject[17, 15];// �����s�v
     const int WIDTH = 15;
     const int HEIGHT = 17;
     int[,] map = new int[HEIGHT, WIDTH]; //0:empty, 1:enemy, 2:block, 3:item
 
-    GameObject wall;
+    GameObject[,] floorBase = new GameObject[HEIGHT, WIDTH];
+    GameObject frame;
 
     P1 player1;
     P2 player2;
@@ -17,56 +17,31 @@ public class GameManager : MonoBehaviour
     int playerNum = 1;
     string playerName;
 
+    public int step = 0;
+
+    [SerializeField]
+    int turnNum = 100;
+
+    [SerializeField]
+    float deray = 1f;
+
     private void Start()
     {
         mapInit();
-        wall = (GameObject)Resources.Load("Wall");
-        GameObject item = (GameObject)Resources.Load("Item");
+        frame = GameObject.Find("Board");
+        GameObject fBase = (GameObject)Resources.Load("FloorBase");
 
         for (int i = 0; i < HEIGHT; i++)
         {
             for (int j = 0; j < WIDTH; j++)
             {
-                switch (map[i, j])
-                {
-                    case 1:
-                        Debug.Log(playerNum);
-                        GameObject temp = Instantiate(
-                            (GameObject)Resources.Load("Player_" + playerNum),
-                            new Vector3(j, 0, HEIGHT - 1 - i),
-                            Quaternion.identity
-                            );
-                        temp.name = "Player_" + playerNum;
-
-                        if (playerNum == 1){
-                            
-                            player1 = temp.GetComponent<P1>();
-                            player1.Init(j, i);
-
-                            playerNum++;
-                        }
-                        else{
-                            player2 = temp.GetComponent<P2>();
-                            player2.Init(j, i);
-                        }
-                        break;
-
-                    case 2:
-                        //walls[i, j] =
-                        Instantiate(
-                            wall,
-                            new Vector3(j, 0, HEIGHT - 1 - i),
-                            Quaternion.identity
-                            );
-                        break;
-                    case 3:
-                        Instantiate(
-                            item,
-                            new Vector3(j, 0, HEIGHT - 1 - i),
-                            Quaternion.identity
-                            );
-                        break;
-                }
+                GameObject temp = Instantiate(
+                                        fBase,
+                                        new Vector3(j, -2, HEIGHT - 1 - i),
+                                        Quaternion.identity
+                                        );
+                temp.transform.SetParent(frame.transform);
+                floorBase[i, j] = temp;
             }
         }
     }
@@ -112,6 +87,26 @@ public class GameManager : MonoBehaviour
             {0,3,0,3,0,3,0,3,0,3,0,3,0,3,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
         };
+
+        //map = new int[,]{
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,1,3,3,3,3,3,3,3,3,3,1,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        //    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        //};
     }
 
     public int[] GetReady(int x, int y)
@@ -157,7 +152,7 @@ public class GameManager : MonoBehaviour
             if (map[y + dir[1], x + dir[0]] == 3)
             {
                 map[y, x] = 2;
-                Instantiate(wall, new Vector3(x, 0, HEIGHT - 1 - y), Quaternion.identity);
+                StartCoroutine(DestroyWall(floorBase[y, x]));
                 if (Judge(x + dir[0], y + dir[1]))
                 {
                     FinishGame(playerName + "is lose...");
@@ -171,18 +166,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    IEnumerator DestroyWall(GameObject wall)
+    {
+        yield return new WaitForSeconds(0.5f);
+        Destroy(wall);
+    }
+
     public void Put(int x, int y, int[] dir)
     {
-        if (!CheckArea(x + dir[1], y + dir[0]))
+        if (!CheckArea(x + dir[0], y + dir[1]))
         {
-            if (map[y + dir[0], x + dir[1]] == 1)
+            if (map[y + dir[1], x + dir[0]] == 1)
             {
                 //����
                 FinishGame(playerName + "is win!!!");
             }
 
-            map[y + dir[0], x + dir[1]] = 2;
-            Instantiate(wall, new Vector3(x + dir[1], 0, HEIGHT - 1 - (y + dir[0])), Quaternion.identity);
+            map[y + dir[1], x + dir[0]] = 2;
+            Destroy(floorBase[y + dir[1], x + dir[0]]);
             // ���Ŕ���
             if (Judge(x, y))
             {
@@ -220,13 +221,13 @@ public class GameManager : MonoBehaviour
 
         for (int i = 1; i <= 9; i++)
         {
-            if (CheckArea(x + dir[1] * i, y + dir[0] * i))
+            if (CheckArea(x + dir[0] * i, y + dir[1] * i))
             {
                 result[i - 1] = 2;
             }
             else
             {
-                result[i - 1] = map[y + dir[0] * i, x + dir[1] * i];
+                result[i - 1] = map[y + dir[1] * i, x + dir[0] * i];
             }
         }
 
@@ -271,60 +272,179 @@ public class GameManager : MonoBehaviour
 
     void FinishGame(string message)
     {
+        finishDeray = true;
         Debug.Log(message);
+        StartCoroutine("DerayFinish");
+    }
+
+    IEnumerator DerayFinish()
+    {
+        yield return new WaitForSeconds(2);
         SceneManager.sceneLoaded += GameSceneLoaded;
 
-        // �V�[���؂�ւ�
         SceneManager.LoadScene("Result");
     }
     private void GameSceneLoaded(Scene next, LoadSceneMode mode)
     {
-        // �V�[���؂�ւ���̃X�N���v�g���擾
         //var gameManager = GameObject.Find("").GetComponent<>();
 
-        // �f�[�^��n������
         //gameManager.setMap(map);
 
-        // �C�x���g����폜
         SceneManager.sceneLoaded -= GameSceneLoaded;
     }
 
-    bool flag = true;
     private void Update()
     {
-        if (flag)
+        if (step == 0)
+        {
+            StartCoroutine("Openning");
+            step = 1;
+        }
+        if (step == 2)
         {
             StartCoroutine("Game");
-            flag = false;
+            step = 3;
+        }
+        if (step == 4)
+        {
+            int pt1 = GameObject.Find("Pt_1").GetComponent<Counter>().GetPt();
+            int pt2 = GameObject.Find("Pt_2").GetComponent<Counter>().GetPt();
+            if (pt1 > pt2)
+            {
+                FinishGame("Player_1 is win!!!");
+            }
+            if (pt1 < pt2)
+            {
+                FinishGame("Player_2 is win!!!");
+            }
+            if (pt1 == pt2)
+            {
+                FinishGame("---Draw---");
+            }
         }
     }
 
+    IEnumerator Openning()
+    {
+        GameObject item = (GameObject)Resources.Load("Item");
+
+        for (int i = 0; i < HEIGHT; i++)
+        {
+            StartCoroutine("RowCreate", i);
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return new WaitForSeconds(3);
+
+        for (int i = 0; i < HEIGHT; i++)
+        {
+            for (int j = 0; j < WIDTH; j++)
+            {
+                if (map[i, j] == 2)
+                {
+                    Destroy(floorBase[i, j]);
+                }
+            }
+        }
+        for (int i = 0; i < HEIGHT; i++)
+        {
+
+            for (int j = 0; j < WIDTH; j++)
+            {
+                switch (map[i, j])
+                {
+                    case 1:
+                        GameObject temp = Instantiate(
+                            (GameObject)Resources.Load("Player_" + playerNum),
+                            new Vector3(j, 10, HEIGHT - 1 - i),
+                            Quaternion.identity
+                            );
+                        temp.name = "Player_" + playerNum;
+
+                        if (playerNum == 1)
+                        {
+                            temp.transform.Find("default").rotation = Quaternion.LookRotation(Vector3.right);
+                            player1 = temp.GetComponent<P1>();
+                            player1.Init(j, i);
+
+                            playerNum++;
+                        }
+                        else
+                        {
+                            temp.transform.Find("default").rotation = Quaternion.LookRotation(Vector3.left);
+                            player2 = temp.GetComponent<P2>();
+                            player2.Init(j, i);
+                        }
+                        yield return null;
+                        break;
+                    case 3:
+                        Instantiate(
+                            item,
+                            new Vector3(j, 10, HEIGHT - 1 - i),
+                            Quaternion.identity
+                            );
+                        yield return null;
+                        break;
+                }
+            }
+        }
+        yield return new WaitForSeconds(2);
+        step = 2;
+    }
+
+    IEnumerator RowCreate(int i)
+    {
+        GameObject floor = (GameObject)Resources.Load("floor");
+        for (int j = 0; j < WIDTH; j++)
+        {
+            GameObject temp = Instantiate(
+                                    floor,
+                                    new Vector3(j, 10, HEIGHT - 1 - i),
+                                    Quaternion.identity
+                                    );
+            DontDestroyOnLoad(temp.gameObject);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    bool finishDeray = false;
+
     IEnumerator Game()
     {
-        for (int j = 0; j < 100; j++)
+        for (int j = 0; j < turnNum; j++)
         {
+            Debug.Log("Turn: " + j+1);
             playerName = player1.name;
 
             player1.Action1();
-            yield return new WaitForSeconds(0.1f);
+            //yield return new WaitForSeconds(deray);
 
             player1.Action2();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(deray);
 
-            //players[i].Action1();
-            //yield return new WaitForSeconds(1);
+            if (finishDeray)
+            {
+                yield return new WaitForSeconds(3);
+            }
 
             playerName = player2.name;
 
             player2.Action1();
-            yield return new WaitForSeconds(0.1f);
+            //yield return new WaitForSeconds(deray);
 
             player2.Action2();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(deray);
 
-            //players[i].Action1();
-            //yield return new WaitForSeconds(1);
-
+            if (finishDeray)
+            {
+                yield return new WaitForSeconds(3);
+            }
         }
+        yield return new WaitForSeconds(1);
+        step = 4;
+    }
+
+    public string GetPlayerName()
+    {
+        return playerName;
     }
 }
